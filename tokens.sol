@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-// ERC-20 Token Standard Interface
 interface IERC20 {
     function totalSupply() external view returns (uint);
     function balanceOf(address account) external view returns (uint);
@@ -14,7 +13,6 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint value);
 }
 
-// ERC-20 Token Contract
 contract UCoin is IERC20 {
     string public symbol = "UCN";
     string public name = "UCoin";
