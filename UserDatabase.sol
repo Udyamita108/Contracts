@@ -61,4 +61,12 @@ contract UserDatabase {
     function getUserCount() public view returns (uint) {
         return userAddresses.length;
     }
+
+    function getAllUsers() public view returns (User[] memory) {
+        User[] memory allUsers = new User[](userAddresses.length);
+        for (uint i = 0; i < userAddresses.length; i++) {
+            allUsers[i] = users[userAddresses[i]];
+        }
+        return allUsers;
+    }
 }
