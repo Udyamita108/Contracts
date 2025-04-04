@@ -7,42 +7,58 @@ contract UserDatabase {
         string username;
         uint xp;
     }
-    
+
     mapping(address => User) public users;
-    address[] public userAddresses;
-    
-    event UserRegistered(address indexed wallet, string username);
-    event XPUpdated(address indexed wallet, uint newXP);
-  
-    function setUser(string memory _username) external {
-        if (users[msg.sender].wallet == address(0)) {
-            users[msg.sender] = User({
-                wallet: msg.sender,
-                username: _username,
-                xp: 0
-            });
-            userAddresses.push(msg.sender);
-            emit UserRegistered(msg.sender, _username);
-        } else {
-            users[msg.sender].username = _username;
-        }
-    }
-  
-    function updateXP(address _user, uint _xp) external {
-        require(users[_user].wallet != address(0), "User not registered");
-        users[_user].xp = _xp;
-        emit XPUpdated(_user, _xp);
-    }
-    
-    function getUserCount() public view returns (uint) {
-        return userAddresses.length;
+    address[] private userAddresses;
+    address public owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Unauthorized: Only owner can update XP");
+        _;
     }
 
-    function getAllUsers() public view returns (User[] memory) {
-        User[] memory allUsers = new User[](userAddresses.length);
+    constructor() {
+        owner = msg.sender; // Set deployer as the owner
+    }
+
+    function setUser(string memory _username) public {
+        require(users[msg.sender].wallet == address(0), "User already exists");
+        users[msg.sender] = User(msg.sender, _username, 0);
+        userAddresses.push(msg.sender);
+    }
+
+    function updateXP(address _user, uint _xp) public onlyOwner {
+        require(users[_user].wallet != address(0), "User does not exist");
+        users[_user].xp = _xp;
+    }
+
+    function incrementXP(address _user, uint _xpAmount) public onlyOwner {
+        require(users[_user].wallet != address(0), "User does not exist");
+        users[_user].xp += _xpAmount;
+    }
+
+    function getUser(address _user) public view returns (User memory) {
+        require(users[_user].wallet != address(0), "User does not exist");
+        return users[_user];
+    }
+
+    function removeUser(address _user) public onlyOwner {
+        require(users[_user].wallet != address(0), "User does not exist");
+        
+        // Remove from mapping
+        delete users[_user];
+
+        // Remove from array
         for (uint i = 0; i < userAddresses.length; i++) {
-            allUsers[i] = users[userAddresses[i]];
+            if (userAddresses[i] == _user) {
+                userAddresses[i] = userAddresses[userAddresses.length - 1];
+                userAddresses.pop();
+                break;
+            }
         }
-        return allUsers;
+    }
+
+    function getUserCount() public view returns (uint) {
+        return userAddresses.length;
     }
 }
