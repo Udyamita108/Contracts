@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+
+
 // Interface including functions needed from UCoin contract
 interface IERC20RewardSource {
     function transferFrom(address sender, address recipient, uint amount) external returns (bool);
